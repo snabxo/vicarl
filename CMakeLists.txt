@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.1)
-project(vicarl C)
+project(vicarl VERSION 0.1.0 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -23,6 +23,7 @@ add_library(vicarl_core_obj OBJECT
   src/model/record.c
   src/model/segment.c
   src/store/store_log.c
+  src/store/store_sqlite.c  # compile as stub unless SQLITE enabled
   src/ledger/ledger.c
 )
 
@@ -44,8 +45,7 @@ target_compile_definitions(vicarl_core_obj
 
 vicarl_apply_warnings(vicarl_core_obj)
 
-
-# Static + shared 
+# Static + shared
 add_library(vicarl_static STATIC $<TARGET_OBJECTS:vicarl_core_obj>)
 set_target_properties(vicarl_static PROPERTIES OUTPUT_NAME vicarl)
 
@@ -73,7 +73,19 @@ generate_export_header(vicarl_shared
 add_library(vicarl::shared ALIAS vicarl_shared)
 add_library(vicarl::static ALIAS vicarl_static)
 
-# Optional P2P module 
+# SQLite backend (optional)
+# store_sqlite.c should compile as a stub when this is OFF.
+if(VICARL_ENABLE_SQLITE)
+  find_package(SQLite3 REQUIRED)
+
+  target_compile_definitions(vicarl_core_obj PUBLIC VICARL_ENABLE_SQLITE=1)
+
+  # Link SQLite into both core libs. Make it PUBLIC so vicarl_ffi gets it via vicarl_static.
+  target_link_libraries(vicarl_shared PUBLIC SQLite::SQLite3)
+  target_link_libraries(vicarl_static PUBLIC SQLite::SQLite3)
+endif()
+
+# Optional P2P module
 if(VICARL_ENABLE_P2P)
   add_library(vicarl_p2p_obj OBJECT
     src/p2p/wire.c
