@@ -9,6 +9,7 @@
 #include <stdarg.h>
 
 #include "error_internal.h"
+#include "alloc_internal.h"
 
 /*
  * Thread-local last error message buffer.
@@ -32,11 +33,7 @@ const char* vicarl_last_error_message(void) {
     return g_vicarl_last_err;
 }
 
-void vicarl_free(void* p) {
-    // For now we use the system allocator.
-    // Later, if you implement a custom allocator module, this can delegate there.
-    free(p);
-}
+void vicarl_free(void* p) { vicarl__free(p); }
 
 const char* vicarl_status_string(vicarl_status_t status) {
     switch (status) {
