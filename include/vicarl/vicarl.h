@@ -22,3 +22,4 @@
 #include <vicarl/store.h>
 #include <vicarl/ledger.h>
 #include <vicarl/ffi.h>
+#include <vicarl/p2p.h>
