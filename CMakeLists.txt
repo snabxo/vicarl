@@ -185,3 +185,9 @@ install(FILES
   "${CMAKE_CURRENT_BINARY_DIR}/vicarlConfigVersion.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/vicarl"
 )
+
+include(CTest)
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
+

@@ -3,12 +3,14 @@
 add_executable(vicarl_tests
         test_main.c
         test_codec.c
+        test_record.c
         test_record_segment.c
         test_merkle.c
         test_store_log.c
         test_ledger.c
         test_p2p_wire.c
         test_p2p_sync.c
+        test.c
 )
 
 target_link_libraries(vicarl_tests PRIVATE vicarl_shared)

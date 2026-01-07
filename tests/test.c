@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: Apache-2.0
+
+#include <stddef.h>
+
+typedef void (*test_fn)(void);
+typedef struct test_case { const char* name; test_fn fn; } test_case_t;
+
+void test_codec(void);
+void test_record_segment(void);
+void test_merkle(void);
+void test_store_log(void);
+void test_ledger(void);
+void test_p2p_wire(void);
+void test_p2p_sync(void);
+
+test_case_t g_tests[] = {
+    { "codec", test_codec },
+    { "record+segment", test_record_segment },
+    { "merkle", test_merkle },
+    { "store_log", test_store_log },
+    { "ledger", test_ledger },
+    { "p2p_wire", test_p2p_wire },
+    { "p2p_sync", test_p2p_sync },
+};
+
+size_t g_tests_count = sizeof(g_tests)/sizeof(g_tests[0]);
