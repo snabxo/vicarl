@@ -12,6 +12,7 @@
 #include "../core/alloc_internal.h"
 #include "../core/error_internal.h"
 #include "../core/hash_internal.h"
+#include "../model/merkle_internal.h"
 
 typedef struct vicarl_bufrec {
     uint8_t* bytes;         // owned
@@ -381,7 +382,7 @@ vicarl_status_t vicarl_ledger_flush(vicarl_ledger_t* l) {
 
     if (l->opt.enable_merkle) {
         vicarl_hash32_t root = VICARL_HASH32_ZERO_INIT;
-        vicarl_status_t st = merkle_root_from_records(recs, n, &root);
+        vicarl_status_t st = vicarl__merkle_root(recs, n, &root);
 
         if (st != VICARL_OK) {
             vicarl__free(recs);

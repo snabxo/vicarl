@@ -10,6 +10,7 @@
 #include "../core/alloc_internal.h"
 #include "../core/error_internal.h"
 #include "../core/hash_internal.h"
+#include "merkle_internal.h"
 
 #define VICARL_SEG_MAGIC0 'V'
 #define VICARL_SEG_MAGIC1 'C'
@@ -465,7 +466,7 @@ vicarl_status_t vicarl_segment_verify(vicarl_slice_t encoded) {
     // Merkle root validation (only if header root is non-zero)
     if (!hash_is_zero32(&s->hdr.records_merkle_root)) {
         vicarl_hash32_t computed = VICARL_HASH32_ZERO_INIT;
-        st = merkle_root_from_records(s->records, s->record_count, &computed);
+        st = vicarl__merkle_root(s->records, s->record_count, &computed);
 
         if (st != VICARL_OK) {
             vicarl_segment_destroy(s);
