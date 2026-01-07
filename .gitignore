@@ -1,0 +1,38 @@
+# CMake
+cmake-build-debug/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+install_manifest.txt
+compile_commands.json
+
+# Binaries
+*.o
+*.a
+*.so
+*.dylib
+*.out
+*.exe
+*.dll
+
+# Build directory
+build/
+
+# IDE files
+.idea/
+.vscode/
+
+# Swap files
+*~
+*.swp
+*.swo
+
+# Log files
+*.log
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Local brainstorm context
+CONTEXT.md
