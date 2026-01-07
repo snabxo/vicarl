@@ -24,7 +24,7 @@ typedef struct vicarl_ffi_ledger {
 /* Utility */
 
 VICARL_FFI_EXPORT const char* vicarl_ffi_last_error(void) {
-    return vicarl_last_error();
+    return vicarl_last_error_message();
 }
 
 VICARL_FFI_EXPORT void vicarl_ffi_free(void* p) {
