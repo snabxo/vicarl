@@ -46,6 +46,6 @@ int main(void) {
     }
 
     vicarl_ledger_close(l);
-    
+
     return 0;
 }
