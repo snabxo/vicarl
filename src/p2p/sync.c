@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 ghost
 
-#include <vicarl/p2p.h>
+#include "p2p_internal.h"
 
 #include <string.h>
 
-#include <vicarl/store.h>
 #include <vicarl/segment.h>
 
 #include "../core/alloc_internal.h"
@@ -48,30 +47,6 @@ static vicarl_status_t send_msg(vicarl_p2p_sync_t* s, const vicarl_p2p_msg_t* ms
 
 // sync object
 
-struct vicarl_p2p_sync {
-    vicarl_store_t* store; // not owned
-    vicarl_p2p_send_fn send;
-
-    void* send_user;
-
-    // our tip cache
-    uint64_t local_tip_no;
-    vicarl_hash32_t local_tip_hash;
-
-    int local_has_tip;
-
-    // peer tip cache
-    uint64_t peer_tip_no;
-    vicarl_hash32_t peer_tip_hash;
-
-    int peer_has_tip;
-
-    // request policy
-    uint64_t next_wanted_no;  // the next segment number we want
-    uint64_t max_inflight;    // how many segments to request per GET_SEGMENTS
-
-    int awaiting_segments;    // set after a request until we catch up or error
-};
 
 static vicarl_status_t refresh_local_tip(vicarl_p2p_sync_t* s) {
     s->local_has_tip = 0;
@@ -119,7 +94,7 @@ static vicarl_status_t request_more_if_needed(vicarl_p2p_sync_t* s) {
     uint64_t want_from = s->local_has_tip ? (s->local_tip_no + 1) : 1;
 
     // If we already asked for this and we're waiting, don't spam.
-    if (s->awaiting_segments && s->next_wanted_no == want_from) {
+    if (s->awaiting_segments) {
         return VICARL_OK;
     }
 

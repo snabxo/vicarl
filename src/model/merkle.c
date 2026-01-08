@@ -289,7 +289,7 @@ vicarl_status_t vicarl__merkle_proof_verify(vicarl_slice_t record_bytes, size_t 
 
     if (st != VICARL_OK) return st;
 
-    size_t idx = index;
+    // size_t idx = index;
 
     for (size_t i = 0; i < proof->count; i++) {
         vicarl_hash32_t next;
@@ -305,7 +305,7 @@ vicarl_status_t vicarl__merkle_proof_verify(vicarl_slice_t record_bytes, size_t 
         if (st != VICARL_OK) return st;
 
         cur = next;
-        idx /= 2;
+        // idx /= 2;
     }
 
     if (memcmp(cur.bytes, expected_root->bytes, 32) != 0) {

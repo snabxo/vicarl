@@ -22,7 +22,7 @@ static int g_failed = 0;
 void test_fail(const char* file, int line, const char* expr) {
     fprintf(stderr, "\n[FAIL] %s:%d: %s\n", file, line, expr);
 
-    const char* e = vicarl_last_error();
+    const char* e = vicarl_last_error_message();
 
     if (e && e[0]) fprintf(stderr, "  last_error: %s\n", e);
 
@@ -37,8 +37,6 @@ if(_a!=_b){ char buf[256]; snprintf(buf,sizeof(buf),"%s == %s (got %llu vs %llu)
 #define ASSERT_EQ_I(a,b) do { int _a=(int)(a), _b=(int)(b); \
 if(_a!=_b){ char buf[256]; snprintf(buf,sizeof(buf),"%s == %s (got %d vs %d)", #a,#b,_a,_b); test_fail(__FILE__,__LINE__,buf); return; } } while(0)
 
-#define ASSERT_ST_OK(st) do { if((st)!=0){ char buf[256]; snprintf(buf,sizeof(buf), "status == OK (got %d)", (int)(st)); test_fail(__FILE__,__LINE__,buf); return; } } while(0)
-
 void test_assert_true(int ok, const char* expr, const char* file, int line) {
     if (!ok) test_fail(file, line, expr);
 }
@@ -47,7 +45,6 @@ int main(void) {
     printf("vicarl tests: %zu cases\n", g_tests_count);
 
     for (size_t i = 0; i < g_tests_count; i++) {
-        vicarl_clear_error();
 
         printf(" - %s\n", g_tests[i].name);
 

@@ -50,6 +50,7 @@ static int hash_is_zero32(const vicarl_hash32_t* h) {
     return (memcmp(h->bytes, z, 32) == 0);
 }
 
+/*
 static vicarl_status_t merkle_root_from_records(const vicarl_slice_t* records, size_t n, vicarl_hash32_t* out_root) {
     if (!out_root) return badarg("merkle: out_root is NULL");
 
@@ -160,6 +161,7 @@ static vicarl_status_t merkle_root_from_records(const vicarl_slice_t* records, s
 
     return VICARL_OK;
 }
+*/
 
 vicarl_status_t vicarl_segment_encode(const vicarl_segment_header_t* hdr, const vicarl_slice_t* records, size_t record_count, const vicarl_sig64_t* segment_sig, vicarl_bytes_t* out_encoded) {
     if (!out_encoded) return badarg("segment_encode: out_encoded is NULL");

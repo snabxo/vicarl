@@ -36,6 +36,7 @@ extern "C" {
     vicarl_status_t vicarl_wbuf_reserve(vicarl_wbuf_t* w, size_t additional);
 
     vicarl_status_t vicarl_wbuf_put_u8(vicarl_wbuf_t* w, uint8_t v);
+    vicarl_status_t vicarl_wbuf_put_u16le(vicarl_wbuf_t* w, uint16_t v);
     vicarl_status_t vicarl_wbuf_put_bytes(vicarl_wbuf_t* w, const void* p, size_t n);
 
     // Unsigned varint (LEB128) encoding
@@ -54,6 +55,7 @@ extern "C" {
     size_t vicarl_rbuf_remaining(const vicarl_rbuf_t* r);
 
     vicarl_status_t vicarl_rbuf_get_u8(vicarl_rbuf_t* r, uint8_t* out);
+    vicarl_status_t vicarl_rbuf_get_u16le(vicarl_rbuf_t* r, uint16_t* out);
     vicarl_status_t vicarl_rbuf_get_bytes(vicarl_rbuf_t* r, size_t n, vicarl_slice_t* out);
 
     // Unsigned varint (LEB128) decoding

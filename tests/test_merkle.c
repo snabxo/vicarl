@@ -4,7 +4,7 @@
 
 #include <string.h>
 
-#include "../src/core/merkle_internal.h"
+#include "model/merkle_internal.h"
 
 void test_merkle(void) {
     const char* a = "a";

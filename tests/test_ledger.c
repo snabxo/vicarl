@@ -3,6 +3,8 @@
 #include "test_util.h"
 
 #include <string.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 #include <vicarl/ledger.h>
 #include <vicarl/record.h>

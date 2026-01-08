@@ -3,6 +3,7 @@
 #include "test_util.h"
 
 #include <string.h>
+#include <unistd.h>
 
 #include <vicarl/store.h>
 #include <vicarl/segment.h>

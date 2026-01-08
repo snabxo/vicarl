@@ -7,6 +7,7 @@
 
 #include <vicarl/vicarl_export.h>
 #include <vicarl/types.h>   // vicarl_status_t, vicarl_slice_t, vicarl_bytes_t, hashes/keys
+#include <vicarl/store.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -96,6 +96,18 @@ vicarl_status_t vicarl_wbuf_put_u8(vicarl_wbuf_t* w, uint8_t v) {
     return VICARL_OK;
 }
 
+vicarl_status_t vicarl_wbuf_put_u16le(vicarl_wbuf_t* w, uint16_t v) {
+    if (!w) return VICARL_ERR_INVALID_ARGUMENT;
+
+    vicarl_status_t st = vicarl_wbuf_reserve(w, 2);
+    if (st != VICARL_OK) return st;
+
+    w->data[w->len++] = (uint8_t)(v & 0xff);
+    w->data[w->len++] = (uint8_t)((v >> 8) & 0xff);
+
+    return VICARL_OK;
+}
+
 vicarl_status_t vicarl_wbuf_put_bytes(vicarl_wbuf_t* w, const void* p, size_t n) {
     if (!w) return VICARL_ERR_INVALID_ARGUMENT;
     if (n == 0) return VICARL_OK;
@@ -165,6 +177,18 @@ vicarl_status_t vicarl_rbuf_get_u8(vicarl_rbuf_t* r, uint8_t* out) {
     if (vicarl_rbuf_remaining(r) < 1) return bounds();
 
     *out = r->data[r->pos++];
+
+    return VICARL_OK;
+}
+
+vicarl_status_t vicarl_rbuf_get_u16le(vicarl_rbuf_t* r, uint16_t* out) {
+    if (!r || !out) return VICARL_ERR_INVALID_ARGUMENT;
+    if (vicarl_rbuf_remaining(r) < 2) return bounds();
+
+    uint16_t v = 0;
+    v |= (uint16_t)r->data[r->pos++];
+    v |= (uint16_t)((uint16_t)r->data[r->pos++] << 8);
+    *out = v;
 
     return VICARL_OK;
 }

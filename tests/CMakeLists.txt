@@ -15,18 +15,23 @@ add_executable(vicarl_tests
 
 target_link_libraries(vicarl_tests PRIVATE vicarl_shared)
 
+if(VICARL_ENABLE_P2P)
+    target_link_libraries(vicarl_tests PRIVATE vicarl_p2p_shared)
+endif()
+
 target_include_directories(vicarl_tests PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_BINARY_DIR}/generated/include
 )
 
 add_test(NAME vicarl_tests COMMAND vicarl_tests)
 
 # Optional: sqlite tests only if enabled + compiled in
 if(VICARL_ENABLE_SQLITE)
-    add_executable(vicarl_tests_sqlite
-            test_main.c
+    target_sources(vicarl_tests PRIVATE
             test_store_sqlite.c
     )
-    target_link_libraries(vicarl_tests_sqlite PRIVATE vicarl_shared)
-    add_test(NAME vicarl_tests_sqlite COMMAND vicarl_tests_sqlite)
+    add_test(NAME vicarl_tests_sqlite COMMAND vicarl_tests)
 endif()

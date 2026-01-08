@@ -13,6 +13,10 @@ void test_ledger(void);
 void test_p2p_wire(void);
 void test_p2p_sync(void);
 
+#if defined(VICARL_ENABLE_SQLITE)
+void test_store_sqlite(void);
+#endif
+
 test_case_t g_tests[] = {
     { "codec", test_codec },
     { "record+segment", test_record_segment },
@@ -21,6 +25,9 @@ test_case_t g_tests[] = {
     { "ledger", test_ledger },
     { "p2p_wire", test_p2p_wire },
     { "p2p_sync", test_p2p_sync },
+#if defined(VICARL_ENABLE_SQLITE)
+    { "store_sqlite", test_store_sqlite },
+#endif
 };
 
 size_t g_tests_count = sizeof(g_tests)/sizeof(g_tests[0]);

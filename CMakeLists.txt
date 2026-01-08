@@ -22,6 +22,7 @@ add_library(vicarl_core_obj OBJECT
   src/core/hash.c
   src/model/record.c
   src/model/segment.c
+  src/model/merkle.c
   src/store/store_log.c
   src/store/store_sqlite.c  # compile as stub unless SQLITE enabled
   src/ledger/ledger.c
@@ -54,7 +55,7 @@ set_target_properties(vicarl_shared PROPERTIES OUTPUT_NAME vicarl)
 
 # On Windows, static .lib name must differ from import .lib produced by shared
 if(WIN32)
-  set_target_properties(vicarl_static PROPERTIES OUTPUT_NAME vicarl_static)
+    set_target_properties(vicarl_static PROPERTIES OUTPUT_NAME vicarl_static)
 endif()
 
 # Hide symbols by default on ELF/Mach-O, export only what you mark in headers
@@ -76,37 +77,37 @@ add_library(vicarl::static ALIAS vicarl_static)
 # SQLite backend (optional)
 # store_sqlite.c should compile as a stub when this is OFF.
 if(VICARL_ENABLE_SQLITE)
-  find_package(SQLite3 REQUIRED)
+    find_package(SQLite3 REQUIRED)
 
-  target_compile_definitions(vicarl_core_obj PUBLIC VICARL_ENABLE_SQLITE=1)
+    target_compile_definitions(vicarl_core_obj PUBLIC VICARL_ENABLE_SQLITE=1)
 
-  # Link SQLite into both core libs. Make it PUBLIC so vicarl_ffi gets it via vicarl_static.
-  target_link_libraries(vicarl_shared PUBLIC SQLite::SQLite3)
-  target_link_libraries(vicarl_static PUBLIC SQLite::SQLite3)
+    # Link SQLite into both core libs. Make it PUBLIC so vicarl_ffi gets it via vicarl_static.
+    target_link_libraries(vicarl_shared PUBLIC SQLite::SQLite3)
+    target_link_libraries(vicarl_static PUBLIC SQLite::SQLite3)
 endif()
 
 # Optional P2P module
 if(VICARL_ENABLE_P2P)
-  add_library(vicarl_p2p_obj OBJECT
+    add_library(vicarl_p2p_obj OBJECT
     src/p2p/wire.c
     src/p2p/sync.c
   )
-  set_property(TARGET vicarl_p2p_obj PROPERTY POSITION_INDEPENDENT_CODE ON)
+    set_property(TARGET vicarl_p2p_obj PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-  target_include_directories(vicarl_p2p_obj
+    target_include_directories(vicarl_p2p_obj
     PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/include>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 
-  target_compile_definitions(vicarl_p2p_obj PUBLIC VICARL_ENABLE_P2P=1)
-  vicarl_apply_warnings(vicarl_p2p_obj)
+    target_compile_definitions(vicarl_p2p_obj PUBLIC VICARL_ENABLE_P2P=1)
+    vicarl_apply_warnings(vicarl_p2p_obj)
 
-  add_library(vicarl_p2p_shared SHARED $<TARGET_OBJECTS:vicarl_p2p_obj>)
-  set_target_properties(vicarl_p2p_shared PROPERTIES OUTPUT_NAME vicarl_p2p)
-  target_link_libraries(vicarl_p2p_shared PUBLIC vicarl_shared)
-  add_library(vicarl::p2p ALIAS vicarl_p2p_shared)
+    add_library(vicarl_p2p_shared SHARED $<TARGET_OBJECTS:vicarl_p2p_obj>)
+    set_target_properties(vicarl_p2p_shared PROPERTIES OUTPUT_NAME vicarl_p2p)
+    target_link_libraries(vicarl_p2p_shared PUBLIC vicarl_shared)
+    add_library(vicarl::p2p ALIAS vicarl_p2p_shared)
 endif()
 
 # FFI facade (shared) for Python/Java
@@ -153,7 +154,7 @@ install(TARGETS vicarl_shared vicarl_static vicarl_ffi
 )
 
 if(VICARL_ENABLE_P2P)
-  install(TARGETS vicarl_p2p_shared
+    install(TARGETS vicarl_p2p_shared
     EXPORT vicarlTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -188,6 +189,6 @@ install(FILES
 
 include(CTest)
 if(BUILD_TESTING)
-  add_subdirectory(tests)
+    add_subdirectory(tests)
 endif()
 

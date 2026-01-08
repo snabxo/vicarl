@@ -49,7 +49,7 @@ static uint64_t now_ms(void) {
     struct timespec ts;
 
     if (timespec_get(&ts, TIME_UTC) == TIME_UTC) {
-        return (uint64_t)ts.tv_sec * 1000ULL + (uint64_t)(ts.tv_nsec / 1000000ULL);
+        return (uint64_t)ts.tv_sec * 1000ULL + ((uint64_t)ts.tv_nsec / 1000000ULL);
     }
 
 #endif
@@ -71,6 +71,7 @@ static int hash_is_zero32(const vicarl_hash32_t* h) {
  * parent = sha256(left||right), duplicate last if odd
  * empty => zero root
  */
+/*
 static vicarl_status_t merkle_root_from_records(const vicarl_slice_t* records, size_t n, vicarl_hash32_t* out_root) {
     if (!out_root) return badarg("merkle: out_root is NULL");
 
@@ -145,6 +146,7 @@ static vicarl_status_t merkle_root_from_records(const vicarl_slice_t* records, s
 
     return VICARL_OK;
 }
+*/
 
 static void clear_buffer(vicarl_ledger_t* l) {
     if (!l) return;
@@ -392,7 +394,7 @@ vicarl_status_t vicarl_ledger_flush(vicarl_ledger_t* l) {
 
         hdr.records_merkle_root = root;
     } else {
-        hdr.records_merkle_root = VICARL_HASH32_ZERO_INIT;
+        memset(&hdr.records_merkle_root, 0, sizeof(hdr.records_merkle_root));
     }
 
     // Encode segment
