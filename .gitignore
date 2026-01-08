@@ -36,3 +36,10 @@ build/
 
 # Local brainstorm context
 CONTEXT.md
+
+# Local test build files
+example_ledger_log
+mother_local_eventlog
+example_ledger.db
+example_ledger.db-shm
+example_ledger.db-wal

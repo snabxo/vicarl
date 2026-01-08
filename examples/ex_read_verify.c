@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <vicarl/ledger.h>
 #include <vicarl/segment.h>
@@ -10,7 +11,7 @@
 static void die(vicarl_status_t st) {
     if (st == VICARL_OK) return;
 
-    fprintf(stderr, "error (%d): %s\n", (int)st, vicarl_last_error());
+    fprintf(stderr, "error (%d): %s\n", (int)st, vicarl_last_error_message());
 
     exit(1);
 }

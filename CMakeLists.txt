@@ -53,6 +53,19 @@ set_target_properties(vicarl_static PROPERTIES OUTPUT_NAME vicarl)
 add_library(vicarl_shared SHARED $<TARGET_OBJECTS:vicarl_core_obj>)
 set_target_properties(vicarl_shared PROPERTIES OUTPUT_NAME vicarl)
 
+target_include_directories(vicarl_shared
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+target_include_directories(vicarl_static
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
 # On Windows, static .lib name must differ from import .lib produced by shared
 if(WIN32)
     set_target_properties(vicarl_static PROPERTIES OUTPUT_NAME vicarl_static)
@@ -192,3 +205,4 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
 
+add_subdirectory(examples)

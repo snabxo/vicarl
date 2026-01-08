@@ -9,6 +9,8 @@
 
 #include <vicarl/types.h>
 #include <vicarl/error.h>
+#include <vicarl/crypto.h>
+#include <stdlib.h>
 
 #ifdef _WIN32
   #define WIN32_LEAN_AND_MEAN
@@ -32,7 +34,7 @@
 static inline void die_status(vicarl_status_t st) {
     if (st == VICARL_OK) return;
 
-    fprintf(stderr, "vicarl error (%d): %s\n", (int)st, vicarl_last_error());
+    fprintf(stderr, "vicarl error (%d): %s\n", (int)st, vicarl_last_error_message());
 
     exit(1);
 }

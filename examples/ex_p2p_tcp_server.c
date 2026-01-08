@@ -11,6 +11,7 @@
   static void make_dir(const char* p) { _mkdir(p); }
 #else
   #include <sys/stat.h>
+#include <stdlib.h>
   static void make_dir(const char* p) { mkdir(p, 0755); }
 #endif
 
@@ -165,7 +166,7 @@ int main(int argc, char** argv) {
         vicarl_free(frame.ptr);
 
         if (st != VICARL_OK) {
-            fprintf(stderr, "decode error: %s\n", vicarl_last_error());
+            fprintf(stderr, "decode error: %s\n", vicarl_last_error_message());
 
             break;
         }
@@ -173,7 +174,7 @@ int main(int argc, char** argv) {
         st = vicarl_p2p_sync_on_message(ctx.sync, &msg);
 
         if (st != VICARL_OK) {
-            fprintf(stderr, "sync error: %s\n", vicarl_last_error());
+            fprintf(stderr, "sync error: %s\n", vicarl_last_error_message());
 
             break;
         }
