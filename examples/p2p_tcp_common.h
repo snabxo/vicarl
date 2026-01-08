@@ -124,6 +124,6 @@ static inline int recv_frame(sock_t s, vicarl_bytes_t* out) {
 
     out->ptr = buf;
     out->len = n;
-      
+
     return 0;
 }
