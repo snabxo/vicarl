@@ -16,3 +16,18 @@ if(VICARL_ENABLE_SQLITE)
     add_executable(vicarl_ex_ledger_sqlite ex_ledger_sqlite.c)
     target_link_libraries(vicarl_ex_ledger_sqlite PRIVATE vicarl_shared)
 endif()
+
+if(VICARL_ENABLE_P2P)
+  add_executable(vicarl_ex_p2p_tcp_server
+    ex_p2p_tcp_server.c
+    p2p_tcp_common.h
+  )
+  target_link_libraries(vicarl_ex_p2p_tcp_server PRIVATE vicarl_shared)
+
+  add_executable(vicarl_ex_p2p_tcp_client
+    ex_p2p_tcp_client.c
+    p2p_tcp_common.h
+  )
+  target_link_libraries(vicarl_ex_p2p_tcp_client PRIVATE vicarl_shared)
+endif()
+
