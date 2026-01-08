@@ -74,6 +74,6 @@ int main(void) {
     printf("tip segment: %llu\n", (unsigned long long)tip_no);
 
     vicarl_ledger_close(l);
-    
+
     return 0;
 }
