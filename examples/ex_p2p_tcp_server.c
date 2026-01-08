@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
 
     vicarl_p2p_sync_destroy(ctx.sync);
     vicarl_store_close(store);
-    
+
     sock_close(cs);
     sock_close(ls);
 
