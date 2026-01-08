@@ -120,6 +120,6 @@ int main(void) {
     vicarl_p2p_sync_destroy(syncB);
     vicarl_store_close(A);
     vicarl_store_close(B);
-    
+
     return 0;
 }

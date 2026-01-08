@@ -6,8 +6,8 @@ target_link_libraries(vicarl_ex_ledger_log PRIVATE vicarl_shared)
 add_executable(vicarl_ex_read_verify ex_read_verify.c)
 target_link_libraries(vicarl_ex_read_verify PRIVATE vicarl_shared)
 
-add_executable(vicarl_ex_sgis_like_integration ex_sgis_like_integration.c)
-target_link_libraries(vicarl_ex_sgis_like_integration PRIVATE vicarl_shared)
+add_executable(vicarl_ex_mother_like_integration ex_mother_like_integration.c)
+target_link_libraries(vicarl_ex_mother_like_integration PRIVATE vicarl_shared)
 
 add_executable(vicarl_ex_p2p_loopback ex_p2p_loopback.c)
 target_link_libraries(vicarl_ex_p2p_loopback PRIVATE vicarl_shared)
