@@ -32,18 +32,63 @@ static void make_dir(const char* p) {
 #endif
 }
 
+// Message queue for async-like message passing
+#define MAX_QUEUE 256
+
+typedef struct msg_queue {
+    uint8_t* frames[MAX_QUEUE];
+    size_t   lens[MAX_QUEUE];
+    int      head;
+    int      tail;
+    int      count;
+} msg_queue_t;
+
+static void queue_init(msg_queue_t* q) {
+    memset(q, 0, sizeof(*q));
+}
+
+static void queue_push(msg_queue_t* q, const uint8_t* data, size_t len) {
+    if (q->count >= MAX_QUEUE) {
+        fprintf(stderr, "queue overflow\n");
+        exit(1);
+    }
+    uint8_t* copy = (uint8_t*)malloc(len);
+    memcpy(copy, data, len);
+    q->frames[q->tail] = copy;
+    q->lens[q->tail] = len;
+    q->tail = (q->tail + 1) % MAX_QUEUE;
+    q->count++;
+}
+
+static int queue_pop(msg_queue_t* q, uint8_t** out_data, size_t* out_len) {
+    if (q->count == 0) return 0;
+    *out_data = q->frames[q->head];
+    *out_len = q->lens[q->head];
+    q->head = (q->head + 1) % MAX_QUEUE;
+    q->count--;
+    return 1;
+}
+
+static void queue_destroy(msg_queue_t* q) {
+    uint8_t* data;
+    size_t len;
+    while (queue_pop(q, &data, &len)) {
+        free(data);
+    }
+}
+
+// Global queues for A and B
+static msg_queue_t queue_for_A;
+static msg_queue_t queue_for_B;
+
 typedef struct link {
-    vicarl_p2p_sync_t* peer;
+    msg_queue_t* target_queue;
 } link_t;
 
-static vicarl_status_t loop_send(void* user, vicarl_slice_t frame) {
+static vicarl_status_t queue_send(void* user, vicarl_slice_t frame) {
     link_t* ln = (link_t*)user;
-    vicarl_p2p_msg_t msg;
-    vicarl_status_t st = vicarl_p2p_wire_decode(frame, &msg);
-
-    if (st != VICARL_OK) return st;
-
-    return vicarl_p2p_sync_on_message(ln->peer, &msg);
+    queue_push(ln->target_queue, frame.ptr, frame.len);
+    return VICARL_OK;
 }
 
 static void append_empty_segment(vicarl_store_t* st, uint64_t no, const vicarl_hash32_t* prev) {
@@ -91,10 +136,14 @@ int main(void) {
         prev = tip_h;
     }
 
+    queue_init(&queue_for_A);
+    queue_init(&queue_for_B);
+
     vicarl_p2p_sync_t* syncA = NULL;
     vicarl_p2p_sync_t* syncB = NULL;
 
-    link_t AtoB = {0}, BtoA = {0};
+    link_t AtoB = { .target_queue = &queue_for_B };
+    link_t BtoA = { .target_queue = &queue_for_A };
 
     vicarl_p2p_sync_options_t so;
 
@@ -102,20 +151,48 @@ int main(void) {
 
     so.max_segments_per_request = 64;
 
-    die(vicarl_p2p_sync_init(&syncA, A, loop_send, &AtoB, &so));
-    die(vicarl_p2p_sync_init(&syncB, B, loop_send, &BtoA, &so));
+    die(vicarl_p2p_sync_init(&syncA, A, queue_send, &AtoB, &so));
+    die(vicarl_p2p_sync_init(&syncB, B, queue_send, &BtoA, &so));
 
-    AtoB.peer = syncB;
-    BtoA.peer = syncA;
-
-    // announce tip from A -> triggers B to request segments -> A serves -> B applies
+    // announce tip from A
     die(vicarl_p2p_sync_send_tip(syncA));
+
+    // Process messages in round-robin until both queues are empty
+    int iterations = 0;
+    int max_iterations = 1000;
+
+    while ((queue_for_A.count > 0 || queue_for_B.count > 0) && iterations < max_iterations) {
+        iterations++;
+
+        // Process one message for B
+        uint8_t* data;
+        size_t len;
+        if (queue_pop(&queue_for_B, &data, &len)) {
+            vicarl_p2p_msg_t msg;
+            vicarl_status_t st = vicarl_p2p_wire_decode((vicarl_slice_t){data, len}, &msg);
+            die(st);
+            die(vicarl_p2p_sync_on_message(syncB, &msg));
+            free(data);  // Free after processing - msg contains slices into data
+        }
+
+        // Process one message for A
+        if (queue_pop(&queue_for_A, &data, &len)) {
+            vicarl_p2p_msg_t msg;
+            vicarl_status_t st = vicarl_p2p_wire_decode((vicarl_slice_t){data, len}, &msg);
+            die(st);
+            die(vicarl_p2p_sync_on_message(syncA, &msg));
+            free(data);  // Free after processing - msg contains slices into data
+        }
+    }
 
     uint64_t bno = 0;
     vicarl_hash32_t bh = {0};
     die(vicarl_store_tip(B, &bno, &bh));
 
     printf("B tip after sync: %llu\n", (unsigned long long)bno);
+
+    queue_destroy(&queue_for_A);
+    queue_destroy(&queue_for_B);
 
     vicarl_p2p_sync_destroy(syncA);
     vicarl_p2p_sync_destroy(syncB);

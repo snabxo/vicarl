@@ -51,7 +51,7 @@ int main(void) {
 
         memset(&meta, 0, sizeof(meta));
 
-        meta.namespace_utf8 = (vicarl_slice_t){ (const uint8_t*)"sgis.behavior", 13 };
+        meta.namespace_utf8 = (vicarl_slice_t){ (const uint8_t*)"mother.behavior", 13 };
         meta.schema_utf8    = (vicarl_slice_t){ (const uint8_t*)"event.v1", 8 };
         meta.author         = pk_fill(0x77);
         meta.timestamp_ms   = (uint64_t)1700000001000ULL + (uint64_t)i;

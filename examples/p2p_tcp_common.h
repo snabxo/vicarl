@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../src/core/alloc_internal.h"
 #include <vicarl/types.h>
 #include <vicarl/error.h>
 #include <vicarl/crypto.h>
@@ -114,7 +115,7 @@ static inline int recv_frame(sock_t s, vicarl_bytes_t* out) {
         return 0;
     }
 
-    uint8_t* buf = (uint8_t*)vicarl_malloc(n);
+    uint8_t* buf = (uint8_t*)vicarl__malloc(n);
 
     if (!buf) return -1;
 

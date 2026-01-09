@@ -163,15 +163,16 @@ int main(int argc, char** argv) {
 
         vicarl_p2p_msg_t msg;
         vicarl_status_t st = vicarl_p2p_wire_decode((vicarl_slice_t){frame.ptr, frame.len}, &msg);
-        vicarl_free(frame.ptr);
 
         if (st != VICARL_OK) {
+            vicarl_free(frame.ptr);
             fprintf(stderr, "decode error: %s\n", vicarl_last_error_message());
 
             break;
         }
 
         st = vicarl_p2p_sync_on_message(ctx.sync, &msg);
+        vicarl_free(frame.ptr);  // Free after processing - msg contains slices into frame
 
         if (st != VICARL_OK) {
             fprintf(stderr, "sync error: %s\n", vicarl_last_error_message());
