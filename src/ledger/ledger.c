@@ -246,6 +246,11 @@ vicarl_status_t vicarl_ledger_open(vicarl_ledger_t** out, const char* path, cons
 void vicarl_ledger_close(vicarl_ledger_t* l) {
     if (!l) return;
 
+    // Best-effort flush so forgotten flushes don't drop records (failures are silent — call flush explicitly to detect them).
+    if (l->buf_len > 0 && l->store) {
+        (void)vicarl_ledger_flush(l);
+    }
+
     clear_buffer(l);
     vicarl__free(l->buf);
 

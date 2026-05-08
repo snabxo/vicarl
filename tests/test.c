@@ -10,6 +10,7 @@ void test_record_segment(void);
 void test_merkle(void);
 void test_store_log(void);
 void test_ledger(void);
+void test_ledger_close_flush(void);
 
 #if defined(VICARL_ENABLE_P2P)
 void test_p2p_wire(void);
@@ -26,6 +27,7 @@ test_case_t g_tests[] = {
     { "merkle", test_merkle },
     { "store_log", test_store_log },
     { "ledger", test_ledger },
+    { "ledger_close_flush", test_ledger_close_flush },
 #if defined(VICARL_ENABLE_P2P)
     { "p2p_wire", test_p2p_wire },
     { "p2p_sync", test_p2p_sync },
