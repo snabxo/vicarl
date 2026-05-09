@@ -198,8 +198,6 @@ static vicarl_ledger_options_t defaults(void) {
     // store defaults
     o.store_options.fsync_on_commit      = 0;
     o.store_options.enable_record_index  = 0;
-    o.store_options.max_segment_bytes    = 0;
-    o.store_options.rebuild_index_on_open= 0;
     o.store_options.sqlite_wal           = 1;
     o.store_options.sqlite_synchronous   = 1; // NORMAL
     return o;
