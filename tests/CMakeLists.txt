@@ -29,6 +29,17 @@ target_include_directories(vicarl_tests PRIVATE
 
 add_test(NAME vicarl_tests COMMAND vicarl_tests)
 
+# Stand-alone FFI smoke test: links *only* against vicarl_ffi so any drift
+# between include/vicarl/ffi.h and src/ffi/ffi.c surfaces as a link error.
+add_executable(vicarl_ffi_tests test_ffi.c)
+target_link_libraries(vicarl_ffi_tests PRIVATE vicarl_ffi)
+target_include_directories(vicarl_ffi_tests PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_BINARY_DIR}/generated/include
+)
+add_test(NAME vicarl_ffi_tests COMMAND vicarl_ffi_tests)
+
 # Optional: sqlite tests only if enabled + compiled in
 if(VICARL_ENABLE_SQLITE)
     target_sources(vicarl_tests PRIVATE
