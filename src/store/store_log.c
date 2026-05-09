@@ -232,13 +232,19 @@ static vicarl_status_t fsync_file(FILE* f) {
     return VICARL_OK;
 }
 
-// Peek segment_no from encoded bytes without allocating.
-// Format: magic 'V''C''S''1', flags u8, then varu64 segment_no.
-static vicarl_status_t peek_segment_no(vicarl_slice_t encoded, uint64_t* out_no) {
-    if (!out_no) return VICARL_ERR_INVALID_ARGUMENT;
+static int hash_is_zero32(const vicarl_hash32_t* h) {
+    static const uint8_t z[32] = {0};
+
+    return memcmp(h->bytes, z, 32) == 0;
+}
+
+// Peek segment_no and prev_segment_hash from encoded bytes without allocating.
+// Format: magic 'V''C''S''1', flags u8, varu64 segment_no, then 32-byte prev hash.
+static vicarl_status_t peek_segment_no_prev(vicarl_slice_t encoded, uint64_t* out_no, vicarl_hash32_t* out_prev) {
+    if (!out_no || !out_prev) return VICARL_ERR_INVALID_ARGUMENT;
 
     if (encoded.len < 6 || !encoded.ptr) {
-        vicarl__set_error_static("peek_segment_no: input too short");
+        vicarl__set_error_static("peek_segment_no_prev: input too short");
 
         return VICARL_ERR_FORMAT;
     }
@@ -252,26 +258,41 @@ static vicarl_status_t peek_segment_no(vicarl_slice_t encoded, uint64_t* out_no)
         vicarl_rbuf_get_u8(&r, &m1) != VICARL_OK ||
         vicarl_rbuf_get_u8(&r, &m2) != VICARL_OK ||
         vicarl_rbuf_get_u8(&r, &m3) != VICARL_OK) {
-        vicarl__set_error_static("peek_segment_no: truncated magic");
+        vicarl__set_error_static("peek_segment_no_prev: truncated magic");
 
         return VICARL_ERR_FORMAT;
     }
 
     if (m0 != 'V' || m1 != 'C' || m2 != 'S' || m3 != '1') {
-        vicarl__set_error_static("peek_segment_no: bad magic");
+        vicarl__set_error_static("peek_segment_no_prev: bad magic");
 
         return VICARL_ERR_FORMAT;
     }
 
     if (vicarl_rbuf_get_u8(&r, &flags) != VICARL_OK) {
-        vicarl__set_error_static("peek_segment_no: missing flags");
+        vicarl__set_error_static("peek_segment_no_prev: missing flags");
 
         return VICARL_ERR_FORMAT;
     }
 
     (void)flags;
 
-    return vicarl_rbuf_get_varu64(&r, out_no);
+    vicarl_status_t st = vicarl_rbuf_get_varu64(&r, out_no);
+
+    if (st != VICARL_OK) return st;
+
+    vicarl_slice_t prev = {0};
+    st = vicarl_rbuf_get_bytes(&r, 32, &prev);
+
+    if (st != VICARL_OK) {
+        vicarl__set_error_static("peek_segment_no_prev: missing prev hash");
+
+        return VICARL_ERR_FORMAT;
+    }
+
+    memcpy(out_prev->bytes, prev.ptr, 32);
+
+    return VICARL_OK;
 }
 
 static int is_seg_name(const char* name, uint64_t* out_no) {
@@ -464,7 +485,8 @@ static vicarl_status_t log_append_segment(vicarl_store_t* s, vicarl_slice_t enco
     }
 
     uint64_t seg_no = 0;
-    vicarl_status_t st = peek_segment_no(encoded_segment, &seg_no);
+    vicarl_hash32_t prev = VICARL_HASH32_ZERO_INIT;
+    vicarl_status_t st = peek_segment_no_prev(encoded_segment, &seg_no, &prev);
 
     if (st != VICARL_OK) return st;
 
@@ -474,6 +496,20 @@ static vicarl_status_t log_append_segment(vicarl_store_t* s, vicarl_slice_t enco
                            (unsigned long long)seg_no, (unsigned long long)expected);
 
         return VICARL_ERR_INVALID_ARGUMENT;
+    }
+
+    if (ls->has_tip) {
+        if (memcmp(prev.bytes, ls->tip_hash.bytes, 32) != 0) {
+            vicarl__set_error_static("log_append_segment: prev_segment_hash mismatch");
+
+            return VICARL_ERR_FORMAT;
+        }
+    } else {
+        if (!hash_is_zero32(&prev)) {
+            vicarl__set_error_static("log_append_segment: genesis prev_segment_hash must be zero");
+
+            return VICARL_ERR_FORMAT;
+        }
     }
 
     // Compute hash

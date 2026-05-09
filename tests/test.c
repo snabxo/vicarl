@@ -9,6 +9,7 @@ void test_codec(void);
 void test_record_segment(void);
 void test_merkle(void);
 void test_store_log(void);
+void test_store_log_prev_hash(void);
 void test_ledger(void);
 
 #if defined(VICARL_ENABLE_P2P)
@@ -25,6 +26,7 @@ test_case_t g_tests[] = {
     { "record+segment", test_record_segment },
     { "merkle", test_merkle },
     { "store_log", test_store_log },
+    { "store_log_prev_hash", test_store_log_prev_hash },
     { "ledger", test_ledger },
 #if defined(VICARL_ENABLE_P2P)
     { "p2p_wire", test_p2p_wire },
