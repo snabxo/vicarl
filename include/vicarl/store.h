@@ -25,10 +25,6 @@ typedef struct vicarl_store_options {
     uint32_t fsync_on_commit;      // 0/1
     uint32_t enable_record_index;  // 0/1
 
-    // Log backend
-    uint64_t max_segment_bytes;    // 0 = default
-    uint32_t rebuild_index_on_open;// 0/1
-
     // SQLite backend (only used when VICARL_ENABLE_SQLITE=1)
     uint32_t sqlite_wal;           // 0/1
     uint32_t sqlite_synchronous;   // 0=OFF, 1=NORMAL, 2=FULL
